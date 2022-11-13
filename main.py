@@ -1,17 +1,20 @@
 from wrapper import *
 
 def main():
-    x = muaythaifactory('shorts')
+    try:
+        x = muaythaifactory('shorts')
 
-    gear = x.getGearInfo('https://www.muaythaifactory.com/kids-muay-thai-shorts.asp?ProductID=ST-KS-100-BKGD')
+        gear_list = x.getAllGear()
+        print(len(gear_list))
 
-    print(
-    gear.url,
-    gear.product_code,
-    gear.brand,
-    gear.price_actual,
-    gear.price_regular,sep='\n')
-    
+        for items in gear_list:
+            print(items.product_code)
+        
+        x.closeSession()
+    except:
+        print("ran into problem")
+        x.closeSession
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

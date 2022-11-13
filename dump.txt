@@ -1,0 +1,86 @@
+<!-- ====================== END of main content ====================== -->
+</div><!-- maincontent-container -->
+</div><!-- maincontent -->
+</div><!-- container -->
+</div><!-- content -->
+</div><!-- content-wrapper -->
+
+
+	<!-- Footer -->
+	<div id="footer-wrapper">
+		<div id="footer" class="container">
+			<ul class="footer-link"><li><a href="/muay-thai-gear.asp">Muay Thai Gear</a>
+			
+					<ul>
+						<li><a href="https://www.muaythaifactory.com/muay-thai-shorts.asp" title="Muay Thai shorts" >Shorts</a></li>
+						<li><a href="https://www.muaythaifactory.com/muay-thai-gloves.asp" title="Muay Thai gloves" >Gloves</a></li>
+						<li><a href="https://www.muaythaifactory.com/custom-muay-thai.asp" title="Customized Muay Thai products" >Custom gear</a></li>
+						<li><a href="https://www.muaythaifactory.com/wholesale-muay-thai.asp" title="Wholesale Muay Thai products" >Wholesale</a></li>
+					</ul>
+				</li><li><a href="https://www.muaythaifactory.com/promotion/">Promotion</a>
+					<ul>
+						<li><a href="https://www.muaythaifactory.com/muay-thai/muay-thai-products-sale.asp" title="Sale Muay Thai gear">SALE items!</a></li>
+						<li><a href="https://www.muaythaifactory.com/muay-thai-special-deal.asp" title="">Deals!</a></li>
+						<li><a href="https://www.muaythaifactory.com/cheap-muay-thai-shorts.asp" title="">Cheap shorts</a></li>
+					</ul>
+				</li><li><a href="https://www.muaythaifactory.com/youraccount">Your Account</a>
+					<ul>
+						<li><a href="https://www.muaythaifactory.com/youraccount/">Track order</a></li>
+						<li><a href="https://www.muaythaifactory.com/youraccount/">Manage account</a></li>
+						<li><a href="https://www.muaythaifactory.com/rewardpoint/">Reward Points</a></li>
+					</ul>
+				</li><li><a href="https://www.muaythaifactory.com/contactus/">Contact Us</a>
+					<ul>
+						<li><a href="https://www.muaythaifactory.com/FAQ/">FAQ</a></li>
+						<li><a href="https://www.muaythaifactory.com/policy/">Policy</a></li>
+						<li><a href="https://www.muaythaifactory.com/policy/privacy.asp">Privacy</a></li>
+						<li><a href="https://www.muaythaifactory.com/wholesale-muay-thai.asp" title="Wholesale Muay Thai products" >Wholesale</a></li>
+						
+					</ul>
+				</li></ul>
+				
+			<div id="copyright">
+			Copyright 2022 - MuayThaiFactory.com - Your #1 Muay Thai gear online store!
+			</div>
+		</div>
+
+	</div> <!-- Footer -->
+	<div id='cookies-msg' style='display:none;'>We use cookies to improve your experience and for marketing purposes. <a href="/policy/privacy.asp">Privacy policy</a>. <a id="cookies-msg-accept-button" >Accept</a></div>
+</div> <!-- page-wrapper  --><!-- Content Footer Scripts -->
+	<script src="/inc/jq/jquery-1.11.3.js" type="text/javascript" ></script>
+	<script src="/inc/js/main.js" type="text/javascript" ></script>
+	<script src="/inc/swiper/js/swiper.min.js" type="text/javascript" ></script>
+	<script src="/inc/js/js_productdetail2.js" type="text/javascript" ></script>
+	
+	
+	
+<!-- google analytics -->
+
+
+	<script type="text/javascript">
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+	try {
+		var pageTracker = _gat._getTracker("UA-1377223-1");
+		pageTracker._trackPageview();
+	} catch(err) {}</script>
+	
+<!-- google remarketing -->	
+<script type="text/javascript">
+	/* <![CDATA[ */
+	var google_conversion_id = 1060364936;
+	var google_conversion_label = "fNfmCPzDrwMQiMXP-QM";
+	var google_custom_params = window.google_tag_params;
+	var google_remarketing_only = true;
+	/* ]]> */
+	</script>
+	<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+	</script>
+	<noscript>
+	<div style="display:inline;">
+	<img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/1060364936/?value=0&amp;label=fNfmCPzDrwMQiMXP-QM&amp;guid=ON&amp;script=0">
+	</div>
+</noscript>
+
