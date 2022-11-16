@@ -3,9 +3,9 @@
 import regex as re
 import requests
 import sys
+from typing import List
 
 class gear:
-
     __attrs__ = [
         "url",
         "product_code",
@@ -15,7 +15,10 @@ class gear:
         "material",
     ]
 
-    def __init__(self,url,product_code,brand,price_actual,price_regular,material):
+    def __init__(self,
+            url,product_code,brand,
+            price_actual,price_regular,
+            material):
         '''
         sizes
         size_chart
@@ -27,6 +30,16 @@ class gear:
         self.price_actual = price_actual
         self.price_regular = price_regular
         self.material = material
+
+    def __str__(self):
+        return f'''
+        URL: {self.url}
+        Product code: {self.product_code}
+        Brand: {self.brand}
+        Discounted Price: {self.price_actual}
+        Regular Price: {self.price_regular}
+        Material: {self.material}
+        '''
 
 class muaythaifactory:
 
@@ -70,11 +83,11 @@ class muaythaifactory:
             print("Wrong input, Failure aww")
             sys.exit(1)
 
-    def getGearListPages(self,page0):
+    def getGearListPages(self,page0) -> int:
         pattern = re.compile(r'(?<=page \d+ of )\d+')
         return int(pattern.search(page0).group())
 
-    def getPage(self,url):
+    def getPage(self,url) -> str:
         try:
             response = self.session.get(url)
 
@@ -89,18 +102,17 @@ class muaythaifactory:
             print("Couldn't get to webpage:" + url)
             sys.exit(1)
 
-    def findProductURLs(self,page):
+    def findProductURLs(self,page) -> List[str]:
         pattern = re.compile(r'(?<=<a href=").+(?=" class="prod_link")')
         return set(pattern.findall(page))
 
-    def findAllProductURLs(self,limit=-1):
+    def findAllProductURLs(self,limit=-1) -> List[str]:
         prod_urls = []
 
         curr_url = self.working_url
         anchor_ini = '?page='
 
         curr_page_html = self.getPage(curr_url)
-        print(curr_url)
 
         if (limit == -1):
             max_page = self.getGearListPages(curr_page_html)
@@ -113,7 +125,6 @@ class muaythaifactory:
             anchor = anchor_ini + str(i)
 
             curr_url = self.working_url + anchor
-            print(curr_url)
 
             curr_page_html = self.getPage(curr_url)
 
@@ -121,7 +132,7 @@ class muaythaifactory:
 
         return set(prod_urls)
 
-    def getGearInfo(self,url):
+    def getGearInfo(self,url) -> gear:
         if (gear_page_html := self.getPage(url)) is None:
             return None
        
@@ -133,7 +144,7 @@ class muaythaifactory:
 
         return gear(url,prod_code,brand,price_actual,price_regular,material)
 
-    def getAllGear(self,limit=-1):
+    def getAllGear(self,limit=-1) -> List[gear]:
         gear_list = []
         prod_urls = self.findAllProductURLs(limit)
 
@@ -143,22 +154,22 @@ class muaythaifactory:
 
         return gear_list
 
-    def getProdCode(self,url):
+    def getProdCode(self,url) -> str:
         pattern = re.compile(r'(?<=ProductID=).+')
         return pattern.search(url).group()
 
-    def getBrand(self,html):
+    def getBrand(self,html) -> str:
         pattern = re.compile(r'(?<=<meta itemprop="name" content=")[\w\s]+(?=">)')
         return pattern.search(html).group()
 
-    def getActualPrice(self,html):
+    def getActualPrice(self,html) -> float:
         pattern = re.compile(r'(?<=<span class="price-our-price"><span itemprop="price" content=")[.\d]+(?=">)')
         return float(pattern.search(html).group())
 
-    def getRegularPrice(self,html):
+    def getRegularPrice(self,html) -> float:
         pattern = re.compile(r'(?<=<span class="price-regular-price">)[.\d]+(?= USD)')
         return float(pattern.search(html).group())
 
-    def getMaterial(self,html):
+    def getMaterial(self,html) -> List[str]:
         pattern = re.compile(r'(?<=<span .+material.+>)[\w\s]{2,}(?=<\/span>)')
         return pattern.findall(html)
