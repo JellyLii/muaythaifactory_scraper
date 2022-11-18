@@ -2,13 +2,13 @@ from scraper import *
 
 def main():
     try:
-        x = muaythaifactory('shorts')
+        x = muaythaifactory('')
+        x.setGearType('all-gloves')
 
-        gear_list = x.getAllGear(2)
-        print(len(gear_list))
+        gear_list = x.getAllGear()
 
-        for items in gear_list:
-            print(items)
+        for gear in gear_list:
+            print(gear)
         
         x.closeSession()
     except:
