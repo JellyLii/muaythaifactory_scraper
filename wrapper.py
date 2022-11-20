@@ -7,40 +7,62 @@ from typing import List
 
 class gear:
     __attrs__ = [
-        "url",
         "product_code",
+        "title",
         "brand",
+        "available",
         "price_actual",
         "price_regular",
         "material",
+        "url"
     ]
 
-    def __init__(self,
-            url,product_code,brand,
-            price_actual,price_regular,
-            material):
-        '''
-        sizes
-        size_chart
-        '''
+    def __init__(self,product_code=None,title=None,
+            brand=None,available=None,price_actual=None,
+            price_regular=None,material=None,url=None):
 
-        self.url = url
-        self.product_code = product_code
-        self.brand = brand
-        self.price_actual = price_actual
-        self.price_regular = price_regular
-        self.material = material
+        self.setProductCode(product_code)
+        self.setTitle(title)
+        self.setBrand(brand)
+        self.setAvailable(available)
+        self.setPriceActual(price_actual)
+        self.setPriceRegular(price_regular)
+        self.setMaterial(material)
+        self.setURL(url)
 
     def __str__(self):
-        return f'''URL: {self.url}\nProduct code: {self.product_code}
-Brand: {self.brand}\nDiscounted Price: {self.price_actual}
-Regular Price: {self.price_regular}\nMaterial: {self.material}\n'''
+        return f'''Product code: {self.product_code}\nTitle: {self.title}
+Brand: {self.brand}\nAvailable: {self.available}\nDiscounted Price: {self.price_actual}
+Regular Price: {self.price_regular}\nMaterial: {self.material}\nURL: {self.url}\n'''
+
+    def setProductCode(self,product_code:str):
+        self.product_code = product_code
+
+    def setTitle(self,title:str):
+        self.title = title
+
+    def setBrand(self,brand:str):
+        self.brand = brand
+
+    def setAvailable(self,available:bool):
+        self.available = available
+
+    def setPriceActual(self,price_actual:float):
+        self.price_actual = price_actual
+
+    def setPriceRegular(self,price_regular:float):
+        self.price_regular = price_regular
+
+    def setMaterial(self,material:str):
+        self.material = material
+
+    def setURL(self,url:str):
+        self.url = url
 
 class muaythaifactory:
 
     __attrs__ = [
         "domain",
-        "err_page",
         "session",
         "working_url",
     ]
@@ -61,10 +83,10 @@ class muaythaifactory:
     }
 
     DOMAIN = 'https://www.muaythaifactory.com/'
+    ERR_PAGE = 'https://www.muaythaifactory.com/?E=SNOTFOUND'
 
     def __init__(self,gear_type=""):
         self.working_url = ''
-        self.err_page = 'https://www.muaythaifactory.com/?E=SNOTFOUND'
 
         self.session = requests.Session()
 
@@ -96,7 +118,7 @@ class muaythaifactory:
             response = self.session.get(url)
 
             if (response.status_code == 200):
-                if (response.url == self.err_page):
+                if (response.url == self.ERR_PAGE):
                     return None
                 else:
                     return response.text
@@ -110,20 +132,56 @@ class muaythaifactory:
             print("Please set geartype by using method: 'setGearType(<gear_type>)'")
             sys.exit(1)
 
+    def findAllProductCodes(self) -> List[str]:
+        code_list = []
+
+        curr_url = self.working_url
+        curr_page_html = self.getPage(curr_url)
+
+        max_page = self.getGearListPages(curr_page_html)
+        code_list.extend(self.scrapeProductCodes(curr_page_html))
+
+        for curr_page in range(1,max_page+1):
+            curr_url = self.insertPageNumber(self.working_url,curr_page)
+
+            print(curr_url)
+            curr_page_html = self.getPage(curr_url)
+
+            code_list.extend(self.scrapeProductCodes(curr_page_html))
+
+        return set(code_list)
+
+    def getGearListPages(self,page0) -> int:
+        pattern = re.compile(r'(?<=page \d+ of )\d+')
+        return int(pattern.search(page0).group())
+
+    def scrapeProductCodes(self,html:str) -> List[str]:
+        pattern = re.compile(r'(?<=class="browse-product-code">).+(?=<\/span>)')
+        return set(pattern.findall(html))
+
+    def insertPageNumber(self,url,page_no) -> str:
+        if (page_no == 1):
+            return url
+        elif not ('?' in url):
+            return url + '?page=' + str(page_no)
+        else:
+            return url + '&page=' + str(page_no)
+
     def scrapeTypeIDs(self,limit=10):
         typeid_anchor = 'muay-thai-gear.asp?typeid='
 
         for i in range(1,limit):
             curr_url = self.DOMAIN + typeid_anchor + str(i)
 
-            title = self.getTitle(self.getPage(curr_url)).strip()
+            title = self.scrapeGearType(self.getPage(curr_url)).strip()
 
             if not (title == 'Muay Thai Products Search'):
                 print("typeid: " + str(i) + ", title: " + title)
 
-    def getGearListPages(self,page0) -> int:
-        pattern = re.compile(r'(?<=page \d+ of )\d+')
-        return int(pattern.search(page0).group())
+    def scrapeGearType(self,html) -> str:
+        pattern = re.compile(r'(?<=<h2 class="c2-c1 no-margin-bottom"> *)\w.+')
+
+        return pattern.search(html).group()
 
     def findProductURLs(self,page) -> List[str]:
         pattern = re.compile(r'(?<=<a href=").+(?=" class="prod_link")')
@@ -156,67 +214,72 @@ class muaythaifactory:
 
         return set(prod_urls)
 
-    def getGearInfo(self,url) -> gear:
-        if (gear_page_html := self.getPage(url)) is None:
-            return None
-
-        prod_code = self.getProdCode(url)
-        print(prod_code)
-        brand = self.getBrand(gear_page_html)
-        print(brand)
-
-        if self.checkAvailable(gear_page_html):
-            price_actual = self.getActualPrice(gear_page_html)
-            print(price_actual)
-            print(price_regular)
-        else:
-            price_actual = None
-            price_regular = None
-
-        material = self.getMaterial(gear_page_html)
-        print(material)
-
-        output = gear(url,prod_code,brand,price_actual,price_regular,material)
-
-        return output
-
     def getAllGear(self) -> List[gear]:
         gear_list = []
-        prod_urls = self.findAllProductURLs()
+        prod_codes = self.findAllProductCodes()
 
-        for url in prod_urls:
-            if (curr_gear := self.getGearInfo(url)) is not None:
+        for code in prod_codes:
+            curr_url = self.DOMAIN + 'muay-thai-gear.asp?ProductID=' + code
+
+            if (curr_gear := self.getGearInfo(code)) is not None:
                 gear_list.append(curr_gear)
 
         return gear_list
+
+    def getGearInfo(self,product_code) -> gear:
+        url = self.DOMAIN + 'muay-thai-gear.asp?ProductID=' + product_code
+
+        if (gear_page_html := self.getPage(url)) is None:
+            return None
+
+        title = self.scrapeTitle(gear_page_html)
+
+        available = self.checkAvailable(gear_page_html)
+
+        brand = self.scrapeBrand(gear_page_html)
+
+        price_actual = self.scrapeActualPrice(gear_page_html)
+        price_regular = self.scrapeRegularPrice(gear_page_html)
+
+        material = self.scrapeMaterial(gear_page_html)
+
+        return gear(product_code,title,brand,
+                    available,price_actual,
+                    price_regular,material,url)
 
     def getProdCode(self,html) -> str:
         pattern = re.compile(r'(?<=ProductID=).+')
         return pattern.search(html).group()
 
-    def getBrand(self,html) -> str:
+    def scrapeTitle(self,html) -> str:
+        pattern = re.compile(r'(?<=<h1 class="product-name" itemprop="name">).+(?=<\/h1>)')
+        return pattern.search(html).group()
+
+    def scrapeBrand(self,html) -> str:
         pattern = re.compile(r'(?<=<meta itemprop="name" content=")[\w\s]+(?=">)')
         return pattern.search(html).group()
 
-    def getActualPrice(self,html) -> float:
+    def scrapeActualPrice(self,html) -> float:
         pattern = re.compile(r'(?<=<span class="price-our-price"><span itemprop="price" content=")[.\d]+(?=">)')
-        return float(pattern.search(html).group())
+        if (match := pattern.search(html)):
+            return float(match.group())
+        else:
+            return None
 
-    def getRegularPrice(self,html) -> float:
+    def scrapeRegularPrice(self,html) -> float:
         pattern = re.compile(r'(?<=<span class="price-regular-price">)[.\d]+(?= USD)')
-        return float(pattern.search(html).group())
+        if (match := pattern.search(html)):
+            return float(match.group())
+        else:
+            return None
 
-    def getMaterial(self,html) -> List[str]:
+    def scrapeMaterial(self,html) -> List[str]:
         pattern = re.compile(r'(?<=<span .+material.+>)[\w\s]{2,}(?=<\/span>)')
         return pattern.findall(html)
-
-    def getTitle(self,html) -> str:
-        pattern = re.compile(r'(?<=<h2 class="c2-c1 no-margin-bottom"> *)\w.+')
-        return pattern.search(html).group()
 
     def checkAvailable(self,html) -> bool:
         pattern = re.compile(r'This item is not available at the moment')
         if pattern.search(html):
-            return True
-        else:
             return False
+        else:
+            return True
