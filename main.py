@@ -1,15 +1,14 @@
 from scraper import *
 
 def main():
-    x = muaythaifactory('')
-    x.setGearType('all-gloves')
+    gear_type = 'all-gloves'
+    with muaythaifactory(gear_type) as x:
 
-    gear_list = x.getAllGear()
+        gear_list = x.getAllGear()
 
-    for gear in gear_list:
-        print(gear)
-    
-    x.closeSession()
+        for gear in gear_list:
+            print(gear)
 
+        
 if __name__ == "__main__":
     main()
