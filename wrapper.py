@@ -1,17 +1,16 @@
 #!/usr/bin/python3
 
 import regex as re
-import requests
-import sys
-import os
+from requests import Session
+from sys import exit
+from os import listdir
 from typing import List
 from datetime import date
 
 class gear:
     """ Represents each product.
     Each attribute is scraped from
-    the product webpage
-    """
+    the product webpage """
 
     __attrs__ = [
         "product_code",
@@ -21,7 +20,6 @@ class gear:
         "price_actual",
         "price_regular",
         "material",
-        "url"
     ]
 
     def __init__(self,product_code=None,title=None,
@@ -35,7 +33,6 @@ class gear:
         self.price_actual = price_actual
         self.price_regular = price_regular
         self.material = material
-        self.url = url
 
     def __str__(self):
         return  f'Product code: {self.product_code}\n' + \
@@ -44,19 +41,17 @@ class gear:
                 f'Available: {self.available}\n' + \
                 f'Discounted Price: {self.price_actual}\n' + \
                 f'Regular Price: {self.price_regular}\n' + \
-                f'Material: {self.material}\n' + \
-                f'URL: {self.url}\n'
+                f'Material: {self.material}\n'
 
     def strCSV(self):
-        return  f'{self.product_code}, ' + \
-                f'{self.title}, ' + \
-                f'{self.brand}, ' + \
-                f'{self.available}, ' + \
-                f'{self.price_actual}, ' + \
-                f'{self.price_regular}, ' + \
-                f'{self.material}, ' + \
-                f'{self.url}'
-
+        """ Prints gear data in CSV form """
+        return  f'{self.product_code}	' + \
+                f'{self.title}	' + \
+                f'{self.brand}	' + \
+                f'{self.available}	' + \
+                f'{self.price_actual}	' + \
+                f'{self.price_regular}	' + \
+                f'{self.material}\n'
 
 class muaythaifactory:
     """ Scraper for muaythaifactory.com.
@@ -87,11 +82,11 @@ class muaythaifactory:
 
     DOMAIN = 'https://www.muaythaifactory.com/'
     ERR_PAGE = 'https://www.muaythaifactory.com/?E=SNOTFOUND'
-    CACHE_PATH = './cache'
+    CSV_PATH = './csv/'
 
     def __init__(self,gear_type=''):
         self.working_url = ''
-        self.session = requests.Session()
+        self.session = Session()
         self.setGearType(gear_type)
 
     def __enter__(self):
@@ -101,6 +96,10 @@ class muaythaifactory:
         self.session.close()
 
     def setGearType(self,gear_type):
+        """ Sets the working url and gear_type attributes.
+        Note that the input checks the GEAR_DICT constant to see whether
+        the input gear_type is valid """
+
         try:
             self.working_url = self.DOMAIN + self.GEAR_DICT[gear_type]
             self.gear_type = gear_type
@@ -110,9 +109,11 @@ class muaythaifactory:
             for key, value in self.GEAR_DICT.items():
                 print("- " + key)
 
-            sys.exit(1)
+            exit(1)
 
     def getPage(self,url) -> str:
+        """ Returns page html of input url """
+
         try:
             if (self.working_url == ''):
                 raise RuntimeWarning
@@ -126,15 +127,19 @@ class muaythaifactory:
                     return response.text
             else:
                 raise IndexError
+
         except IndexError:
             print("Couldn't get to webpage:" + url)
-            sys.exit(1)
+            exit(1)
 
         except RuntimeWarning:
             print("Please set geartype by using method: 'setGearType(<gear_type>)'")
-            sys.exit(1)
+            exit(1)
 
     def findAllProductCodes(self) -> List[str]:
+        """ For the input gear_type, scrapes all pages for products codes
+        and returns a list of all product codes """
+
         code_list = []
 
         curr_url = self.working_url
@@ -220,12 +225,21 @@ class muaythaifactory:
         prod_codes = self.findAllProductCodes()
 
         for code in prod_codes:
-            curr_url = self.DOMAIN + 'muay-thai-gear.asp?ProductID=' + code
-
             if (curr_gear := self.getGearInfo(code)) is not None:
                 gear_list.append(curr_gear)
 
         return gear_list
+
+    def csvAllGear(self):
+        csv_name = self.gear_type + str(date.today()) + '.csv'
+
+        with open(self.CSV_PATH + csv_name, 'w') as csvfile:
+            prod_codes = self.findAllProductCodes()
+
+            for code in prod_codes:
+                if (curr_gear := self.getGearInfo(code)) is not None:
+                    csvfile.write(curr_gear.strCSV())
+
 
     def getGearInfo(self,product_code) -> gear:
         url = self.DOMAIN + 'muay-thai-gear.asp?ProductID=' + product_code
@@ -246,11 +260,7 @@ class muaythaifactory:
 
         return gear(product_code,title,brand,
                     available,price_actual,
-                    price_regular,material,url)
-
-    def getProdCode(self,html) -> str:
-        pattern = re.compile(r'(?<=ProductID=).+')
-        return pattern.search(html).group()
+                    price_regular,material)
 
     def scrapeTitle(self,html) -> str:
         pattern = re.compile(r'(?<=<h1 class="product-name" itemprop="name">).+(?=<\/h1>)')
@@ -285,26 +295,12 @@ class muaythaifactory:
         else:
             return True
 
-    def checkExisting(self):
-        cache_list = os.listdir(self.CACHE_PATH)
-        pattern = re.compile(r'^' + re.escape(self.gear_type) + r'\d{4}-\d{2}-\d{2}$')
+    def checkForExistingCache(self):
+        cache_list = listdir(self.CSV_PATH)
+        pattern = re.compile(r'^' + re.escape(self.gear_type) + r'\d{4}-\d{2}-\d{2}\.csv$')
 
         for files in cache_list:
             if (pattern.match(files)):
                 return True
 
         return False
-
-'''
-        if (existing_file := [s for s in os.listdir(self.CACHE_PATH) if self.gear_type in s]):
-            proceed = input("Previous CSV: " \
-                    + exisiting_file + " was generated" \
-                    + "Regenerate? (Y/N) ")
-
-            return proceed
-
-        return False
-
-
-#        """filename: gear-type<date>"""
-'''
