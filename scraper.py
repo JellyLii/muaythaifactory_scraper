@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import regex as re
+import pandas as pd
+
 from requests import Session
 from sys import exit
 from os import listdir
@@ -54,13 +56,56 @@ class gear:
                 f'{self.material}\n'
 
 class muaythaifactory:
+
+    __attrs__ = [
+            'gear_type',
+            'csv_filepath']
+
+    CSV_DIR = './csv/'
+
+    def __init__(self,gear_type=''):
+        self.gear_type = gear_type
+
+        if (cache := self.checkForExistingCache()) is not None:
+            toScrape = input(f"Existing csv scrape '{cache}' found. Generate new scrape? (Y/N) ")
+            self.csv_filepath = self.CSV_DIR + cache
+
+            if (toScrape == 'Y' or toScrape == 'y'):
+                os.remove(self.CSV_DIR + cache)
+                self.csv_filepath = muaythaifactory_web(gear_type).csvAllGear()
+
+        else:
+            self.csv_filepath = muaythaifactory_web(gear_type).csvAllGear()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return
+
+    def checkForExistingCache(self) -> str:
+        cache_list = listdir(self.CSV_DIR)
+        pattern = re.compile(r'^' + re.escape(self.gear_type) + r'\d{4}-\d{2}-\d{2}\.csv$')
+
+        for files in cache_list:
+            if (pattern.match(files)):
+                return files
+
+        return None
+
+
+
+
+
+class muaythaifactory_web:
     """ Scraper for muaythaifactory.com.
     
     Example usage:
     muaythaifactory('mma-gloves').getAllGear()
     to scrape for all MMA gloves.
     """
-    __attrs__ = [ "domain",
+    __attrs__ = [
+        "domain",
         "session",
         "working_url",
     ]
@@ -82,7 +127,7 @@ class muaythaifactory:
 
     DOMAIN = 'https://www.muaythaifactory.com/'
     ERR_PAGE = 'https://www.muaythaifactory.com/?E=SNOTFOUND'
-    CSV_PATH = './csv/'
+    CSV_DIR = './csv/'
 
     def __init__(self,gear_type=''):
         self.working_url = ''
@@ -90,7 +135,7 @@ class muaythaifactory:
         self.setGearType(gear_type)
 
     def __enter__(self):
-       return self
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.close()
@@ -112,7 +157,7 @@ class muaythaifactory:
             exit(1)
 
     def getPage(self,url) -> str:
-        """ Returns page html of input url """
+        """ Returns page html source of input url """
 
         try:
             if (self.working_url == ''):
@@ -233,13 +278,17 @@ class muaythaifactory:
     def csvAllGear(self):
         csv_name = self.gear_type + str(date.today()) + '.csv'
 
-        with open(self.CSV_PATH + csv_name, 'w') as csvfile:
+        with open(self.CSV_DIR + csv_name, 'w') as csvfile:
             prod_codes = self.findAllProductCodes()
+            curr_gear = gear()
+
+            csvfile.write('\t'.join(map(str,curr_gear.__attrs__)) + '\n')
 
             for code in prod_codes:
                 if (curr_gear := self.getGearInfo(code)) is not None:
                     csvfile.write(curr_gear.strCSV())
 
+            return csvfile.name
 
     def getGearInfo(self,product_code) -> gear:
         url = self.DOMAIN + 'muay-thai-gear.asp?ProductID=' + product_code
@@ -294,13 +343,3 @@ class muaythaifactory:
             return False
         else:
             return True
-
-    def checkForExistingCache(self):
-        cache_list = listdir(self.CSV_PATH)
-        pattern = re.compile(r'^' + re.escape(self.gear_type) + r'\d{4}-\d{2}-\d{2}\.csv$')
-
-        for files in cache_list:
-            if (pattern.match(files)):
-                return True
-
-        return False
