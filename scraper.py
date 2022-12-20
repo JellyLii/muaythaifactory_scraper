@@ -2,8 +2,11 @@
 
 import regex as re
 import pandas as pd
+<<<<<<< HEAD
 import csv
 import os
+=======
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
 
 from requests import Session
 from sys import exit
@@ -47,6 +50,7 @@ class gear:
                 f'Regular Price: {self.price_regular}\n' + \
                 f'Material: {self.material}\n'
 
+<<<<<<< HEAD
     def retCSV(self):
         return [self.product_code,
                 self.title,
@@ -55,6 +59,17 @@ class gear:
                 self.price_actual,
                 self.price_regular,
                 self.material]
+=======
+    def strCSV(self):
+        """ Prints gear data in CSV form """
+        return  f'{self.product_code}	' + \
+                f'{self.title}	' + \
+                f'{self.brand}	' + \
+                f'{self.available}	' + \
+                f'{self.price_actual}	' + \
+                f'{self.price_regular}	' + \
+                f'{self.material}\n'
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
 
 class muaythaifactory:
 
@@ -73,7 +88,11 @@ class muaythaifactory:
 
             if (toScrape == 'Y' or toScrape == 'y'):
                 os.remove(self.CSV_DIR + cache)
+<<<<<<< HEAD
                 self.csv_filepath = muaythaifactory_web(self.gear_type).csvAllGear()
+=======
+                self.csv_filepath = muaythaifactory_web(gear_type).csvAllGear()
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
 
         else:
             self.csv_filepath = muaythaifactory_web(gear_type).csvAllGear()
@@ -95,6 +114,12 @@ class muaythaifactory:
         return None
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
 class muaythaifactory_web:
     """ Scraper for muaythaifactory.com.
     
@@ -276,6 +301,7 @@ class muaythaifactory_web:
     def csvAllGear(self):
         csv_name = self.gear_type + str(date.today()) + '.csv'
 
+<<<<<<< HEAD
         with open(self.CSV_DIR + csv_name, 'w', newline='') as csvfile:
             prod_codes = self.findAllProductCodes()
             curr_gear = gear()
@@ -290,6 +316,17 @@ class muaythaifactory_web:
                 if (curr_gear := self.getGearInfo(code)) is not None:
                     print(curr_gear.retCSV())
                     csv_writer.writerow(curr_gear.retCSV())
+=======
+        with open(self.CSV_DIR + csv_name, 'w') as csvfile:
+            prod_codes = self.findAllProductCodes()
+            curr_gear = gear()
+
+            csvfile.write('\t'.join(map(str,curr_gear.__attrs__)) + '\n')
+
+            for code in prod_codes:
+                if (curr_gear := self.getGearInfo(code)) is not None:
+                    csvfile.write(curr_gear.strCSV())
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
 
             return csvfile.name
 
@@ -346,4 +383,7 @@ class muaythaifactory_web:
             return False
         else:
             return True
+<<<<<<< HEAD
 
+=======
+>>>>>>> a5d3dbe4602c9f5ed9973c5626312be8a79f5653
