@@ -1,0 +1,5 @@
+product_code	title	brand	available	price_actual	price_regular	material
+FT-FGV17-WHRD	Fairtex Super Sparring Gloves - FGV17 - White/Red	Fairtex	False	51.95	98.95	['Genuine Leather']
+FT-FGV15-RDBK	Fairtex  Sparring Gloves - Double WristWrapClosure	Fairtex	False	49.95	98.0	['Genuine Leather']
+FT-FGV12-RDBK	Fairtex  Ultimate Combat gloves with OpenThumpLoop	Fairtex	True	53.95	105.0	['Genuine Leather']
+FT-FGV18-BKRD	Fairtex Super Sparring Grappling Gloves - FGV18 - Black/Red	Fairtex	False	62.95	105.0	['Microfiber Leather']
